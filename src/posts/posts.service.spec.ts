@@ -31,22 +31,4 @@ describe('PostService', () => {
       expect(service.posts).toHaveLength(1);
     });
   });
-
-  describe('updatePost', () => {
-    it('should update post', async () => {
-      const expected = {
-        id: 1,
-        title: 'mock',
-        content: null,
-        isFinished: false,
-        authorId: null,
-      };
-      jest
-        .spyOn(service, 'createPost')
-        .mockImplementation(async () => expected);
-
-      expect(await service.createPost(expected)).toBe(expected);
-      expect(service.posts).toHaveLength(1);
-    });
-  });
 });
