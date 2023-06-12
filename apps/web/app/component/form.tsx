@@ -1,17 +1,39 @@
 // import { PrismaClient } from '@prisma/client';
 'use client';
-import { useEffect, useState } from 'react';
-import { POST } from '../api/posts';
+import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
+import { EditPost, POST } from '../api/posts';
 
 // const prisma = new PrismaClient();
 
-export default function Form({ author, setOpenForm }) {
+type Props = {
+  author: string
+  fetchAllPosts: (value: string) => void
+  setOpenForm: Dispatch<SetStateAction<boolean>>
+  editData?: {
+    id: number,
+    title: string,
+    content: string,
+    isFinished: boolean,
+  }
+  closeEditData?: (value: SetStateAction<number>) => void
+}
+
+const Form: FC<Props> = ({ author, setOpenForm, fetchAllPosts, editData, closeEditData }) => {
   const [formData, setFormData] = useState({
     title:'',
     content:'',
     isFinished: false,
     authorEmail: author
   });
+
+  useEffect(() => {
+    if(editData) {
+      setFormData({
+        ...editData,
+        authorEmail: author
+      })
+    }
+  },[editData, author])
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -24,9 +46,17 @@ export default function Form({ author, setOpenForm }) {
   const handelSubmit = async (e) => {
     e.preventDefault();
     if(formData.title) {
-      const post = await POST(formData);
-      setOpenForm(false);
-      console.log(post)
+      if(editData) {
+        await EditPost({
+          id: editData.id,
+          postData: formData
+        })
+        closeEditData(0)
+      } else {
+        await POST(formData);
+        setOpenForm(false);
+      }
+      fetchAllPosts(author);
     }
   }
 
@@ -49,3 +79,5 @@ export default function Form({ author, setOpenForm }) {
     </form>
   );
 }
+
+export default Form;

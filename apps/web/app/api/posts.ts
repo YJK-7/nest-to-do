@@ -34,3 +34,29 @@ export async function PutStatus(postId) {
  
   return data
 }
+
+export async function DeletePost(postId) {
+  const res = await fetch(`api/posts/${postId}`, {
+    method:"DELETE",
+    headers:{
+      'Content-Type': 'application/json',
+    }
+  })
+  const data = await res.json()
+ 
+  return data
+}
+
+export async function EditPost(editData) {
+  const { id, postData } = editData
+  const res = await fetch(`api/posts/${id}`, {
+    method:"PUT",
+    body: JSON.stringify(postData),
+    headers:{
+      'Content-Type': 'application/json',
+    }
+  })
+  const data = await res.json()
+ 
+  return data
+}

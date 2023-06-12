@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { GET } from './api/user';
-import { GetAllPosts, PutStatus } from './api/posts';
+import { DeletePost, GetAllPosts, PutStatus } from './api/posts';
 import Form from './component/form';
 
 
@@ -11,7 +11,18 @@ export default function IndexPage() {
     email:''
   });
   const [openForm, setOpenForm] = useState(false);
-  const [toDoList, setToDoList] = useState([]);
+  const [toDoList, setToDoList] = useState([{
+    id:0,
+    title:'',
+    content:'',
+    isFinished: false,
+  }]);
+  const [editId, setEditId] = useState<number>(0);
+
+  const fetchAllPosts = async (email: string) => {
+    const toDoList = await GetAllPosts(email);
+    setToDoList(toDoList);
+  }
   
   useEffect(() => {
     const fetch = async () => {
@@ -24,22 +35,21 @@ export default function IndexPage() {
   },[])
 
   useEffect(() => {
-    const fetch = async (email) => {
-      const toDoList = await GetAllPosts(email);
-      console.log(toDoList)
-      setToDoList(toDoList);
-    }
     if (user.email.length !== 0) {
-      fetch(user.email)
+      fetchAllPosts(user.email)
       .catch(console.error);
     }
 
   },[user.email])
 
   const handelStatusChange = async (postId) => {
-    const changeCheck = await PutStatus(postId);
-    const toDoList = await GetAllPosts(user.email);
-    setToDoList(toDoList);
+    await PutStatus(postId);
+    fetchAllPosts(user.email);
+  }
+
+  const handelDelete = async (postId) => {
+    await DeletePost(postId);
+    fetchAllPosts(user.email);
   }
 
   return (
@@ -59,8 +69,20 @@ export default function IndexPage() {
                 {toDo.content && (
                   <p key='content'> Content: {toDo.content} </p>
                 )}
-                <p>Done? {toDo.isFinished ? 'Yes' : 'No'} </p>
-                <button onClick={() => handelStatusChange(toDo.id)} key={`isFinished-${toDo.id}`}>Change Status</button>
+                <div style={{ display: 'flex', alignItems:'center', justifyContent: 'space-between' }}>
+                  <p>Done? {toDo.isFinished ? 'Yes' : 'No'} </p>
+                  <button onClick={() => handelStatusChange(toDo.id)} key={`isFinished-${toDo.id}`}>Change Status</button>
+                </div>
+                <button onClick={() => handelDelete(toDo.id)} key={`delete-${toDo.id}`}>Delete</button>
+                {editId === toDo.id ?
+                  <>
+                    <button onClick={() => setEditId(0)} key={`close-${toDo.id}`}>Close</button>
+                    <div style={{ display: 'flex', justifyContent:'center', border:'solid 2px black', width: '40%', padding: 10, margin: 'auto', marginTop: 10}}>
+                      <Form author={user.email} setOpenForm={setOpenForm} fetchAllPosts={fetchAllPosts} editData={toDo} closeEditData={setEditId}/>
+                    </div>
+                  </> 
+                  : <button onClick={() => setEditId(toDo.id)} key={`edit-${toDo.id}`}>Edit</button>
+                }
               </div>
             )
           })
@@ -68,7 +90,7 @@ export default function IndexPage() {
       <button onClick={() => setOpenForm(true)}> Add To Do </button>
       {openForm && (
         <div style={{ display: 'flex', justifyContent:'center', border:'solid 2px black', width: '40%', padding: 10, margin: 'auto'}}>
-          <Form author={user.email} setOpenForm={setOpenForm} />
+          <Form author={user.email} setOpenForm={setOpenForm} fetchAllPosts={fetchAllPosts}/>
         </div>
       )}
       
