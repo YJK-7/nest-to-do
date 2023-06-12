@@ -65,12 +65,19 @@ export class PostsController {
 
   @Post('create')
   async createToDo(
-    @Body() postData: { title: string; content?: string; authorEmail: string },
+    @Body()
+    postData: {
+      title: string;
+      content?: string;
+      dueDate?: string;
+      authorEmail: string;
+    },
   ): Promise<PostModel> {
-    const { title, content, authorEmail } = postData;
+    const { title, content, dueDate, authorEmail } = postData;
     return this.postService.createPost({
       title,
       content,
+      dueDate,
       author: {
         connect: { email: authorEmail },
       },
@@ -84,17 +91,19 @@ export class PostsController {
     postData: {
       title?: string;
       content?: string;
+      dueDate?: string;
       isFinished?: boolean;
       authorEmail?: string;
     },
   ): Promise<PostModel> {
-    const { title, content, isFinished, authorEmail } = postData;
+    const { title, content, dueDate, isFinished, authorEmail } = postData;
 
     return await this.postService.updatePost({
       where: { id: Number(id) },
       data: {
         title,
         content,
+        dueDate,
         isFinished: isFinished,
         author: {
           connect: { email: authorEmail },

@@ -2,40 +2,55 @@
 'use client';
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { EditPost, POST } from '../api/posts';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-// const prisma = new PrismaClient();
+type PostObject = {
+  title: string,
+  content?: string,
+  dueDate?: string | Date,
+  isFinished: boolean,
+}
 
 type Props = {
   author: string
   fetchAllPosts: (value: string) => void
-  setOpenForm: Dispatch<SetStateAction<boolean>>
-  editData?: {
-    id: number,
-    title: string,
-    content: string,
-    isFinished: boolean,
+  editData?: PostObject & {
+    id: number
   }
+  setOpenForm: Dispatch<SetStateAction<boolean>>
   closeEditData?: (value: SetStateAction<number>) => void
 }
 
 const Form: FC<Props> = ({ author, setOpenForm, fetchAllPosts, editData, closeEditData }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<PostObject&{authorEmail: string}>({
     title:'',
     content:'',
+    dueDate: '',
     isFinished: false,
     authorEmail: author
   });
 
   useEffect(() => {
     if(editData) {
+      if(editData.dueDate) {
+        editData.dueDate = new Date(editData.dueDate);
+      }
       setFormData({
         ...editData,
         authorEmail: author
       })
     }
   },[editData, author])
-
+  
   const handleChange = (e) => {
+    if(e.target.name === 'isFinished') {
+      setFormData({
+        ...formData,
+        [e.target.name]: !formData.isFinished
+      });
+      return 
+    }
     const value = e.target.value;
     setFormData({
       ...formData,
@@ -51,7 +66,7 @@ const Form: FC<Props> = ({ author, setOpenForm, fetchAllPosts, editData, closeEd
           id: editData.id,
           postData: formData
         })
-        closeEditData(0)
+        closeEditData(0);
       } else {
         await POST(formData);
         setOpenForm(false);
@@ -69,6 +84,10 @@ const Form: FC<Props> = ({ author, setOpenForm, fetchAllPosts, editData, closeEd
       <label>
         Content:
         <input type='text' value={formData.content} onChange={handleChange} name='content'/>
+      </label>
+      <label>
+        Due Date:
+        <DatePicker selected={formData.dueDate} onChange={(date) => setFormData({...formData, dueDate: date})} />
       </label>
       <label>
         Done?
