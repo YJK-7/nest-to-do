@@ -3,9 +3,7 @@ import { useEffect, useState } from 'react';
 import { GET } from './api/user';
 import { DeletePost, GetAllPosts, PutStatus } from './api/posts';
 import Form from './component/form';
-import { format, compareAsc, set } from 'date-fns'
-
-
+import { format } from 'date-fns'
 
 export default function IndexPage() {
   const [user, setUser] = useState({
@@ -22,8 +20,6 @@ export default function IndexPage() {
   }]);
   const [editId, setEditId] = useState<number>(0);
 
-  
-  
   useEffect(() => {
     const fetch = async () => {
       const userData = await GET();
@@ -80,15 +76,15 @@ export default function IndexPage() {
         toDoList.map((toDo) => {
           return (
             <div key={toDo.id} style={{ border:'solid 2px black', width: '40%', padding: 10, marginBottom: 10}}>
-              <p key='title'> Title: {toDo.title} </p>
+              <p key='title'>🖊️ Title: {toDo.title} </p>
               {toDo.content && (
-                <p key='content'> Content: {toDo.content} </p>
+                <p key='content'>📚 Content: {toDo.content} </p>
               )}
               {toDo.dueDate && (
-                <p key='dueDate'> Due Date: {formateDate(toDo.dueDate)} </p>
+                <p key='dueDate'> 📅 Due Date: {formateDate(toDo.dueDate)} </p>
               )}
-              <div style={{ display: 'flex', alignItems:'center', justifyContent: 'space-between' }}>
-                <p>Done? {toDo.isFinished ? 'Yes' : 'No'} </p>
+              <div style={{ display: 'flex', alignItems:'center', justifyContent: 'space-between', marginTop: -10 }}>
+                <p>✅ Done: {toDo.isFinished ? 'Yes' : 'No'} </p>
                 <button onClick={() => handelStatusChange(toDo.id)} key={`isFinished-${toDo.id}`}>Change Status</button>
               </div>
               <button onClick={() => handelDelete(toDo.id)} key={`delete-${toDo.id}`}>Delete</button>
