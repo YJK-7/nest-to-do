@@ -20,6 +20,7 @@ describe('PostService', () => {
         id: 1,
         title: 'mock',
         content: null,
+        dueDate: null,
         isFinished: false,
         authorId: null,
       };
