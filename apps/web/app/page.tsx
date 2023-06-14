@@ -60,10 +60,6 @@ export default function IndexPage() {
   const formateDate = (date) => {
     return format(new Date(date), 'MMMM, do')
   }
-  
-  const setTime = (date) => {
-    return set(date, { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 })
-  }
 
   return (
     <div>
@@ -82,11 +78,6 @@ export default function IndexPage() {
       )}
       {toDoList.length !== 0 && (
         toDoList.map((toDo) => {
-          if (toDo.dueDate) {
-            if (compareAsc(setTime(new Date()), setTime(new Date(toDo.dueDate))) === 0 || compareAsc(setTime(new Date()), setTime(new Date(toDo.dueDate))) === 1) {
-              toDo.isFinished = true;
-            } 
-          }
           return (
             <div key={toDo.id} style={{ border:'solid 2px black', width: '40%', padding: 10, marginBottom: 10}}>
               <p key='title'> Title: {toDo.title} </p>
